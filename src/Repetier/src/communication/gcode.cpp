@@ -338,8 +338,9 @@ void GCode::pushCommand() {
   returned command, the gcode_command_finished() function must be called.
 */
 GCode* GCode::peekCurrentCommand() {
-    if (bufferLength == 0)
+    if (bufferLength == 0) {
         return nullptr; // No more data
+    }
     return &commandsBuffered[bufferReadIndex];
 }
 
@@ -437,7 +438,7 @@ It must be called frequently to empty the incoming buffer.
 void GCode::readFromSerial() {
 #if defined(DOOR_PIN) && DOOR_PIN > -1
     if (Printer::isDoorOpen()) {
-        keepAlive(DoorOpen);
+        keepAlive(FirmwareState::DoorOpen);
         return; // do nothing while door is open
     }
 #endif
