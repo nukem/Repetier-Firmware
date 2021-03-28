@@ -270,7 +270,7 @@
 #define DIO91_PIN PIO_PB15A_CANRX1 | PIO_PB14A_CANTX1
 
 // Additional Pins for Alligator board
-//#if (MOTHERBOARD == 500) || (MOTHERBOARD == 501)
+#if (MOTHERBOARD == 500) || (MOTHERBOARD == 501)
 //92
 #define DIO92_PORT PIOA
 #define DIO92_PIN PIO_PA5
@@ -298,8 +298,52 @@
 //100
 #define DIO100_PORT PIOC
 #define DIO100_PIN PIO_PC11
-//#endif
+#endif
 
+// Additional Pins for Davinci board
+#if (MOTHERBOARD == MOTHERBOARD_USER_DEFINED_DUE)
+//101
+#define DIO101_PORT PIOC
+#define DIO101_PIN PIO_PC27
+//108
+#define DIO108_PORT PIOC
+#define DIO108_PIN PIO_PC20
+//117
+#define DIO117_PORT PIOB
+#define DIO117_PIN PIO_PB2A_ETX0
+//118
+#define DIO118_PORT PIOB
+#define DIO118_PIN PIO_PB3A_ETX1
+//119
+#define DIO119_PORT PIOB
+#define DIO119_PIN PIO_PB4A_ECRSDV
+//120
+#define DIO120_PORT PIOB
+#define DIO120_PIN PIO_PB5A_ERX0
+//121
+#define DIO121_PORT PIOB
+#define DIO121_PIN PIO_PB6A_ERX1
+//122
+#define DIO122_PORT PIOB
+#define DIO122_PIN PIO_PB7A_ERXER
+//123
+#define DIO123_PORT PIOB
+#define DIO123_PIN PIO_PB8A_EMDC
+//124
+#define DIO124_PORT PIOB
+#define DIO124_PIN PIO_PB9A_EMDIO
+//125
+#define DIO125_PORT PIOB
+#define DIO125_PIN PIO_PB24
+//92
+#define DIO92_PORT PIOB
+#define DIO92_PIN PIO_PB22
+//93
+#define DIO93_PORT PIOB
+#define DIO93_PIN PIO_PB10
+#endif
+
+/**
 // 101 PB4
 #define DIO101_PORT PIOB
 #define DIO101_PIN PIO_PB4
@@ -334,6 +378,7 @@
 // 111 PB3
 #define DIO111_PORT PIOB
 #define DIO111_PIN PIO_PB3
+**/
 
 #ifndef DIO0_PIN
 #error pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request

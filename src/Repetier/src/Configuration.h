@@ -35,18 +35,30 @@
 
 */
 
+// debug tools
+#define LIGHT_ON HAL::digitalWrite(UI_BACKLIGHT_PIN, 1);
+#define LIGHT_OFF HAL::digitalWrite(UI_BACKLIGHT_PIN, 0);
+#define CASE_ON HAL::digitalWrite(CASE_LIGHT_PINS, 1);
+#define CASE_OFF HAL::digitalWrite(CASE_LIGHT_PINS, 0);
+
+
+#define NO_WAIT_MESSAGES 1
+
+
 // The following variables are required early to decide on the right modules.
 #define NUM_TOOLS 2
 #define NUM_EXTRUDER 2
 #define NUM_SERVOS 1                  // Number of serves available
-#define MOTHERBOARD MOTHERBOARD_RADDS // 405
-#define EEPROM_MODE 3
-#define RFSERIAL Serial
+#define MOTHERBOARD MOTHERBOARD_USER_DEFINED_DUE //
+#define EEPROM_MODE EEPROM_NONE
+#define RFSERIAL SerialUSB
+#define UI_HAS_KEYS 1
+
 //#define EXTERNALSERIAL  use Arduino serial library instead of build in. Requires more RAM, has only 63 byte input buffer.
 // Uncomment the following line if you are using Arduino compatible firmware made for Arduino version earlier than 1.0
 // If it is incompatible you will get compiler errors about write functions not being compatible!
 //#define COMPAT_PRE1
-#define BLUETOOTH_SERIAL 101
+#define BLUETOOTH_SERIAL -1
 #define BLUETOOTH_BAUD 115200
 #define WAITING_IDENTIFIER "wait"
 #define JSON_OUTPUT 1
@@ -58,8 +70,8 @@
 #define PREPARE_FREQUENCY 1000       // Update frequency for new blocks. Must be higher than PREPARE_FREQUENCY.
 #define BLOCK_FREQUENCY 500          // Number of blocks with constant stepper rate per second.
 #define VELOCITY_PROFILE 2           // 0 = linear, 1 = cubic, 2 = quintic velocity shape
-#define Z_SPEED 10                   // Z positioning speed
-#define XY_SPEED 150                 // XY positioning speed for normal operations
+#define Z_SPEED 5                   // Z positioning speed
+#define XY_SPEED 100                 // XY positioning speed for normal operations
 #define E_SPEED 2                    // Extrusion speed
 #define G0_FEEDRATE 0                // Speed for G0 moves. Independent from set F value! Set 0 to use F value.
 #define MAX_ROOM_TEMPERATURE 25      // No heating below this temperature!
@@ -68,7 +80,7 @@
 //#define DEBUG_RESCUE                 // Uncomment to add power loss entry in debug menu while printing
 #define POWERLOSS_LEVEL 2       // How much time do we have on powerloss, 0 = no move, 1 = short just raise Z, 2 = long full park move
 #define POWERLOSS_UP 5          // How much to move up if mode 1 is active
-#define Z_PROBE_TYPE 2          // 0 = no z probe, 1 = default z probe, 2 = Nozzle as probe
+#define Z_PROBE_TYPE 0          // 0 = no z probe, 1 = default z probe, 2 = Nozzle as probe
 #define Z_PROBE_BORDER 2        // Safety border to ensure position is allowed
 #define Z_PROBE_TEMPERATURE 170 // Temperature for type 2
 
@@ -78,11 +90,13 @@
 #define BABYSTEPS_PER_BLOCK \
     { 10, 10, 10 }
 // If all axis end stops are hardware based we can skip the time consuming tests each step
-#define NO_SOFTWARE_AXIS_ENDSTOPS
+// #define NO_SOFTWARE_AXIS_ENDSTOPS
 // Normally only a delta has motor end stops required. Normally you trigger using axis endstops.
 #define NO_MOTOR_ENDSTOPS
 
-#define FEATURE_CONTROLLER CONTROLLER_SPARKLCD //  CONTROLLER_FELIX_DUE
+#define CONTROLLER_DAVINCI_20A 20000
+#define FEATURE_CONTROLLER CONTROLLER_DAVINCI_20A
+
 // Use more memory to speedup display updates
 #define DISPLAY_FULL_BUFFER 1
 // Direction 1 or -1
@@ -167,6 +181,9 @@ to the position. 0 = no contribution. */
 #define AXISCOMP_TANYZ 0
 #define AXISCOMP_TANXZ 0
 
+
+// #define CUSTOM_DEFAULT_THEMES 1
+
 // Next 7 lines are required to make the following work, do not change!
 #include "boards/pins.h"
 #undef IO_TARGET
@@ -184,11 +201,22 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #define Y_HOME_PRIORITY 1
 #define Z_HOME_PRIORITY 2
 
+// Define beeper list
+#if BEEPER_PIN > -1
+#define NUM_BEEPERS 1
+#define BEEPER_LIST \
+    { &MainBeeper }
+#else
+#define NUM_BEEPERS 0
+#define BEEPER_LIST \
+    { }
+#endif
+
 // All fans in this list list become controllable with M106/M107
 // by selecteing the fan number with P0..P<NUM_FANS-1>
-#define NUM_FANS 1
+#define NUM_FANS 0
 #define FAN_LIST \
-    { &Fan1PWM }
+    {  }
 
 #define NUM_HEATED_BEDS 1
 #define HEATED_BED_LIST \
@@ -198,8 +226,14 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #define HEATED_CHAMBER_LIST \
     { }
 
+// Define servo list
+#if ORIG_SERVO_PIN > -1
 #define SERVO_LIST \
     { &Servo1 }
+#else
+#define SERVO_LIST { }
+#endif
+
 #define TOOLS \
     { &ToolExtruder1, &ToolExtruder2 }
 
@@ -245,11 +279,11 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #define STORE_MOTOR_STALL_SENSITIVITY 1
 
 #define X_HOME_DIR -1
-#define Y_HOME_DIR 1
+#define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
-#define X_MAX_LENGTH 235
-#define Y_MAX_LENGTH 240
-#define Z_MAX_LENGTH 225
+#define X_MAX_LENGTH 200
+#define Y_MAX_LENGTH 210
+#define Z_MAX_LENGTH 200
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
@@ -268,27 +302,18 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #endif
 #define PARK_POSITION_Z_RAISE 10
 
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 1100
-#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1100
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X 1000
+#define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1000
 #define MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Z 100
-#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 1100
-#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1100
-#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 100
-#define XAXIS_STEPS_PER_MM 610
-#define YAXIS_STEPS_PER_MM 610
-#define ZAXIS_STEPS_PER_MM 6400
+#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 1000
+#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Y 1000
+#define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 150
+#define XAXIS_STEPS_PER_MM 80
+#define YAXIS_STEPS_PER_MM 80
+#define ZAXIS_STEPS_PER_MM 2560
 
 // ################## EDIT THESE SETTINGS MANUALLY ################
 // ################ END MANUAL SETTINGS ##########################
-
-#undef Y_MIN_PIN
-#define Y_MIN_PIN -1
-#undef X_MAX_PIN
-#define X_MAX_PIN -1
-#undef Y_MAX_PIN
-#define Y_MAX_PIN ORIG_Y_MIN_PIN
-#undef Z_MAX_PIN
-#define Z_MAX_PIN -1
 
 #define KILL_IF_SENSOR_DEFECT 0
 #define RETRACT_ON_PAUSE 2
@@ -303,8 +328,8 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #define RETRACTION_UNDO_EXTRA_LENGTH 0
 #define RETRACTION_UNDO_EXTRA_LONG_LENGTH 0
 #define RETRACTION_UNDO_SPEED 25
-#define FILAMENTCHANGE_X_POS 5
-#define FILAMENTCHANGE_Y_POS 5
+#define FILAMENTCHANGE_X_POS 0
+#define FILAMENTCHANGE_Y_POS 0
 #define FILAMENTCHANGE_Z_ADD 2
 #define FILAMENTCHANGE_REHOME 1
 #define FILAMENTCHANGE_SHORTRETRACT 2.5
@@ -324,17 +349,17 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 
 // ################ Endstop configuration #####################
 
-#define DOOR_PIN -1
+#define DOOR_PIN -1 //64
 #define DOOR_PULLUP 1
 #define DOOR_INVERTING 1
-#define ENDSTOP_X_BACK_MOVE 3
-#define ENDSTOP_Y_BACK_MOVE 3
-#define ENDSTOP_Z_BACK_MOVE 1
-#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 2
-#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 2
-#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 2
-#define ENDSTOP_X_BACK_ON_HOME 0.5
-#define ENDSTOP_Y_BACK_ON_HOME 0.5
+#define ENDSTOP_X_BACK_MOVE 5
+#define ENDSTOP_Y_BACK_MOVE 5
+#define ENDSTOP_Z_BACK_MOVE 2
+#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 3
+#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 3
+#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 4
+#define ENDSTOP_X_BACK_ON_HOME 0
+#define ENDSTOP_Y_BACK_ON_HOME 7
 #define ENDSTOP_Z_BACK_ON_HOME 0
 #define ALWAYS_CHECK_ENDSTOPS 1
 #define MOVE_X_WHEN_HOMED 0
@@ -343,7 +368,7 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 
 // ################# XYZ movements ###################
 
-#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT 1
+#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT 0
 
 // ##########################################################################################
 // ##                           Movement settings                                          ##
@@ -357,24 +382,24 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 
 #define STEPPER_INACTIVE_TIME 360L
 #define MAX_INACTIVE_TIME 1200L
-#define MAX_FEEDRATE_X 250
-#define MAX_FEEDRATE_Y 250
-#define MAX_FEEDRATE_Z 20
-#define HOMING_FEEDRATE_X 80
-#define HOMING_FEEDRATE_Y 80
-#define HOMING_FEEDRATE_Z 10
+#define MAX_FEEDRATE_X 200
+#define MAX_FEEDRATE_Y 200
+#define MAX_FEEDRATE_Z 5
+#define HOMING_FEEDRATE_X 40
+#define HOMING_FEEDRATE_Y 40
+#define HOMING_FEEDRATE_Z 4
 // Raise z before homing (1)
-#define ZHOME_PRE_RAISE 1
+#define ZHOME_PRE_RAISE 2
 // How much mm should z raise before homing
-#define ZHOME_PRE_RAISE_DISTANCE 2
+#define ZHOME_PRE_RAISE_DISTANCE 5
 #define ZHOME_MIN_TEMPERATURE 0
 #define ZHOME_HEAT_ALL 0
 // Height in mm after homing.
-#define ZHOME_HEIGHT 10
+#define ZHOME_HEIGHT 5
 // Home Z at a fixed xy position (1)
 #define FIXED_Z_HOME_POSITION 1
-#define ZHOME_X_POS 140
-#define ZHOME_Y_POS 45
+#define ZHOME_X_POS 0
+#define ZHOME_Y_POS 0
 // Raise extruders before switching tools. Used to prevent touching objects while switching.
 #define RAISE_Z_ON_TOOLCHANGE 2
 
@@ -474,23 +499,18 @@ CONFIG_VARIABLE_EQ(EndstopDriver, *ZProbe, &endstopZMin)
 #define SD_RUN_ON_STOP ""
 #define SD_STOP_HEATER_AND_MOTORS_ON_STOP 1
 #define ARC_SUPPORT 0
-#define FEATURE_MEMORY_POSITION 1
+
 #define FEATURE_CHECKSUM_FORCED 0
-#define UI_PRINTER_NAME "Testsetup"
-#define UI_PRINTER_COMPANY "Repetier"
-#define UI_PAGES_DURATION 4000
-#define UI_SPEEDDEPENDENT_POSITIONING 0
-#define UI_DISABLE_AUTO_PAGESWITCH 1
+#define UI_PRINTER_NAME "Davinci 2.0A Duo"
+#define UI_PRINTER_COMPANY "XYZPrinting"
+
+
+
 #define UI_AUTORETURN_TO_MENU_AFTER 30000
-#define FEATURE_UI_KEYS 0
-#define UI_ENCODER_SPEED 2
-#define UI_REVERSE_ENCODER 0
-#define UI_KEY_BOUNCETIME 10
-#define UI_KEY_FIRST_REPEAT 500
-#define UI_KEY_REDUCE_REPEAT 50
-#define UI_KEY_MIN_REPEAT 50
-#define CASE_LIGHTS_PIN 25
-#define CASE_LIGHT_DEFAULT_ON 1
+
+
+
+#define CASE_LIGHT_DEFAULT_ON 0
 #define UI_START_SCREEN_DELAY 2000
 
 //#define CUSTOM_EVENTS
