@@ -142,7 +142,23 @@ void GUI::update() {
         // Com::printFLN(PSTR("Action:"), (int32_t)nextAction);
         lastAction = HAL::timeInMilliseconds();
         callbacks[level](nextAction, data[level]); // Execute action
-        nextAction = nextAction == GUIAction::CLICK ? GUIAction::CLICK_PROCESSED : (nextAction == GUIAction::BACK ? GUIAction::BACK_PROCESSED : GUIAction::NONE);
+        // nextAction = nextAction == GUIAction::CLICK ? GUIAction::CLICK_PROCESSED : (nextAction == GUIAction::BACK ? GUIAction::BACK_PROCESSED : GUIAction::NONE);
+        switch (nextAction) {
+            case GUIAction::CLICK:
+                nextAction = GUIAction::CLICK_PROCESSED;
+                break;
+            case GUIAction::BACK:
+                nextAction = GUIAction::BACK_PROCESSED;
+                break;
+            case GUIAction::NEXT:
+                nextAction = GUIAction::NEXT_PROCESSED;
+                break;
+            case GUIAction::PREVIOUS:
+                nextAction = GUIAction::PREVIOUS_PROCESSED;
+                break;
+            default:
+                nextAction = GUIAction::NONE;
+        }
         nextActionRepeat = 0;
         contentChanged = true;
     }
@@ -301,12 +317,13 @@ void GUI::okKey() {
 /** Check for button and store result in nextAction. */
 void GUI::handleKeypress() {
     if (!ControllerClick::get()) {
-        setEncoder();
+        // setEncoder();
         // setEncoderA(ControllerEncA::get());
         // setEncoderB(ControllerEncB::get());
     }
+
     // debounce clicks
-    if (nextAction == GUIAction::CLICK_PROCESSED || nextAction == GUIAction::BACK_PROCESSED) {
+    if (nextAction == GUIAction::CLICK_PROCESSED || nextAction == GUIAction::BACK_PROCESSED || nextAction == GUIAction::NEXT_PROCESSED || nextAction == GUIAction::PREVIOUS_PROCESSED) {
         millis_t timeDiff = HAL::timeInMilliseconds() - lastAction;
         if (timeDiff < 200) { // wait 200ms until next click counts
             return;
@@ -320,6 +337,30 @@ void GUI::handleKeypress() {
     } else if (nextAction == GUIAction::CLICK_PROCESSED) {
         nextAction = GUIAction::NONE;
     }
+
+    if (ControllerReset::get()) {
+        GUI::resetMenu();
+    }
+
+#if ENABLED(UI_HAS_KEYS)
+    if (ControllerNext::get()) {
+        if (nextAction != GUIAction::NEXT_PROCESSED) {
+            GUI::nextKey();
+            nextActionRepeat = 1;
+        }
+    } else if (nextAction == GUIAction::NEXT_PROCESSED){
+        nextAction = GUIAction::NONE;
+    }
+    if (ControllerPrevious::get()) {
+        if (nextAction != GUIAction::PREVIOUS_PROCESSED) {
+            GUI::previousKey();
+            nextActionRepeat = 1;
+        }
+    } else if (nextAction == GUIAction::PREVIOUS_PROCESSED){
+        nextAction = GUIAction::NONE;
+    }
+#endif
+
 #if ENABLED(UI_HAS_BACK_KEY)
     // action sequence: BACK -> execute operation -> BACK_PROCESSED -> back key up -> NONE
     if (ControllerBack::get()) {

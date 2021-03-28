@@ -56,7 +56,10 @@ enum class GUIAction {
     ANALYSE = 5,
     BACK = 6,
     CLICK_PROCESSED = 7,
-    BACK_PROCESSED = 8
+    BACK_PROCESSED = 8,
+    NEXT_PROCESSED = 9,
+    PREVIOUS_PROCESSED = 10,
+    RESET_PROCESSED = 11
 };
 
 enum class GUIPageType {
@@ -253,6 +256,9 @@ public:
     static bool handleFloatValueAction(GUIAction& action, float& value, float increment);
     static bool handleLongValueAction(GUIAction& action, int32_t& value, int32_t min, int32_t max, int32_t increment);
     static void menuAffectBySpeed(GUIAction& action);
+    static INLINE uint8_t isGUIIdle() {
+        return (HAL::timeInMilliseconds() - lastAction) > UI_AUTORETURN_TO_MENU_AFTER ? 1 : 0;
+    }    
 };
 
 struct probeProgInfo {

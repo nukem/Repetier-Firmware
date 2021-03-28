@@ -300,6 +300,8 @@ void initializeLCD() {
 #if UI_DISPLAY_RW_PIN > -1
     SET_OUTPUT(UI_DISPLAY_RW_PIN);
 #endif
+    // Wait for more than 40ms after VDD rises to 4.5V
+    HAL::delayMilliseconds(60);
     SET_OUTPUT(UI_DISPLAY_ENABLE_PIN);
 
     // Now we pull both RS and R/W low to begin commands
@@ -329,11 +331,13 @@ void initializeLCD() {
     HAL::delayMicroseconds(160);
     // finally, set # lines, font size, etc.
     lcdCommand(LCD_4BIT | LCD_2LINE | LCD_5X7);
-
-    lcdCommand(LCD_CLEAR);                                       //- Clear Screen
-    HAL::delayMilliseconds(3);                                   // clear is slow operation
-    lcdCommand(LCD_INCREASE | LCD_DISPLAYSHIFTOFF);              //- Entrymode (Display Shift: off, Increment Address Counter)
+    HAL::delayMicroseconds(40);
     lcdCommand(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF); //- Display on
+    HAL::delayMicroseconds(40);
+    lcdCommand(LCD_CLEAR);                                       //- Clear Screen
+    HAL::delayMilliseconds(4);                                   // clear is slow operation
+    lcdCommand(LCD_INCREASE | LCD_DISPLAYSHIFTOFF);              //- Entrymode (Display Shift: off, Increment Address Counter)
+    
     createChar(1, character_back);
     createChar(2, character_degree);
     createChar(3, character_selected);
