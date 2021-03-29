@@ -1692,7 +1692,6 @@ void Motion1::homeAxes(fast8_t axes) {
                 }
 #if SAFE_HOMING
                 if (!PrinterType::homeAxis(i)) {
-                    callAfterHomingOnSteppers(); // for motor drivers to turn off crash detection if wanted
                     Printer::setHoming(false);
                     GCode::fatalError(PSTR("Homing failed"));
                     return;
@@ -1904,16 +1903,15 @@ bool Motion1::simpleHome(fast8_t axis) {
     // First test
     dest[axis] = homeDir[axis] * secureDistance;
     Motion1::axesTriggered = 0;
-    eStop.resetHistory();
     if (!eStop.update()) { // don't test if we are still there
         moveRelativeByOfficial(dest, homingFeedrate[axis], false);
         waitForEndOfMoves();
-        if (!eStop.historyWasTriggered()) { // endstop should be triggered now
-            Com::printWarningF(PSTR("Endstop for axis "));
-            Com::printF((const char*)HAL::readFlashAddress(&axisNames[axis]));
-            Com::printFLN(PSTR(" did not trigger for first test!"));
-            ok = false;
-        }
+    }
+    if (!eStop.update()) { // endstop should be triggered now
+        Com::printWarningF(PSTR("Endstop for axis "));
+        Com::printF((const char*)HAL::readFlashAddress(&axisNames[axis]));
+        Com::printFLN(PSTR(" did not trigger for first test!"));
+        ok = false;
     }
     updatePositionsFromCurrent();
     Motion2::setMotorPositionFromTransformed();
@@ -1922,7 +1920,6 @@ bool Motion1::simpleHome(fast8_t axis) {
     // Move back for retest
     if (ok) {
         endstopMode = EndstopMode::DISABLED;
-        eStop.resetHistory();
         dest[axis] = -homeDir[axis] * homeRetestDistance[axis];
         Motion1::axesTriggered = 0;
         moveRelativeByOfficial(dest, homingFeedrate[axis], false);
@@ -1932,11 +1929,10 @@ bool Motion1::simpleHome(fast8_t axis) {
         endstopMode = newMode;
         dest[axis] = homeDir[axis] * homeRetestDistance[axis] * 1.5f;
         Motion1::axesTriggered = 0;
-        if (eStop.historyWasUntriggered()) {
-            eStop.resetHistory();
+        if (!eStop.update()) {
             moveRelativeByOfficial(dest, homingFeedrate[axis] / homeRetestReduction[axis], false);
             waitForEndOfMoves();
-            if (!eStop.historyWasTriggered()) { // endstop should be triggered now
+            if (!eStop.update()) { // endstop should be triggered now
                 Com::printWarningF(PSTR("Endstop for axis "));
                 Com::printF((const char*)HAL::readFlashAddress(&axisNames[axis]));
                 Com::printFLN(PSTR(" did not trigger for second test!"));
