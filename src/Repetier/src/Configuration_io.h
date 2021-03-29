@@ -225,9 +225,9 @@ SERVO_ANALOG(Servo1, 0, Servo1Pin, 500, 2500, 1050)
 // control temperature. Higher level classes take these as input
 // and simple heater like a heated bed use it directly.
 // HEAT_MANAGER_PID(name, tp, index, input, output, maxTemp, maxPwm, sampleTime, decVariance, decPeriod, p, i, d, driveMin, driveMax, hotPlugable)
-HEAT_MANAGER_PID(HeatedBed1, 'B', 0, TempBed1, PWMBed1, 120, 255, 1000, 5, 30000, 23.41, 4.57, 29.94, 80, 255, true)
-HEAT_MANAGER_PID(HeaterExtruder1, 'E', 0, TempExt1, PWMExtruder1, 260, 255, 1000, 10, 20000, 2.77, 0.24, 21.4, 40, 220, false)
-HEAT_MANAGER_PID(HeaterExtruder2, 'E', 1, TempExt2, PWMExtruder2, 260, 255, 1000, 10, 20000, 2.04, 0.14, 19.78, 40, 220, false)
+HEAT_MANAGER_PID(HeatedBed1, 'B', 0, TempBed1, PWMBed1, 120, 255, 1000, 5, 30000, 24.4, 4.84, 30.87, 80, 255, true)
+HEAT_MANAGER_PID(HeaterExtruder1, 'E', 0, TempExt1, PWMExtruder1, 260, 255, 1000, 10, 20000, 6.03, 0.34, 71.33, 40, 220, false)
+HEAT_MANAGER_PID(HeaterExtruder2, 'E', 1, TempExt2, PWMExtruder2, 260, 255, 1000, 10, 20000, 4.15, 0.20, 56.80, 40, 220, false)
 
 // HEAT_MANAGER_DYN_DEAD_TIME(HeaterExtruder1, 'E', 0, TempExt1, PWMExtruder1, 260, 255, 100, 10, 20000, 150, 7, 7, 200, 7, 7, false)
 // HEAT_MANAGER_DYN_DEAD_TIME(HeaterExtruder2, 'E', 1, TempExt2, PWMExtruder2, 260, 255, 100, 10, 20000, 150, 7, 7, 200, 7, 7, false)

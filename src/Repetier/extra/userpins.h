@@ -56,7 +56,7 @@
 #define TEMP_2_PIN 13
 
 // servo 
-#define ORIG_SERVO_PIN 5
+#define ORIG_SERVO_PIN -1
 
 // hotend cooler
 #define ORIG_FAN_PIN 4
