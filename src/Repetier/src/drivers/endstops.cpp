@@ -25,6 +25,7 @@ template <class inp>
 inline bool EndstopSwitchDriver<inp>::update() {
     if (state != inp::get()) {
         state = !state;
+        historyUpdate(state);
         if (Printer::debugEndStop()) {
             Printer::reportFlagSet(PRINTER_REPORT_FLAG_ENDSTOPS);
         }
@@ -36,7 +37,7 @@ template <class inp, int axis, bool dir>
 EndstopSwitchHardwareDriver<inp, axis, dir>::EndstopSwitchHardwareDriver(void_fn_t cb)
     : parent(nullptr)
     , callbackFunc(cb)
-    , state(false)
+    , state(inp::get())
     , attached(false) {
 }
 
@@ -57,6 +58,7 @@ inline void EndstopSwitchHardwareDriver<inp, axis, dir>::updateReal() {
     fast8_t newState = inp::get();
     if (state != newState) {
         state = newState;
+        historyUpdate(state);
         if (axis >= 0 && newState) { // tell motion planner
             endstopTriggered(axis, dir);
         }
@@ -72,6 +74,7 @@ inline void EndstopSwitchHardwareDriver<inp, axis, dir>::updateReal() {
 inline void EndstopStepperControlledDriver::set(bool triggered) {
     if (state != triggered) {
         state = triggered;
+        historyUpdate(state);
         if (Printer::debugEndStop()) {
             Printer::reportFlagSet(PRINTER_REPORT_FLAG_ENDSTOPS);
         }
@@ -84,12 +87,14 @@ inline bool EndstopSwitchDebounceDriver<inp, level>::update() {
         if (state < level) {
             state++;
             if (state == level && Printer::debugEndStop()) {
+                historyUpdate(state);
                 Printer::reportFlagSet(PRINTER_REPORT_FLAG_ENDSTOPS);
             }
         }
     } else {
         if (state != 0) {
             state = 0;
+            historyUpdate(state);
             if (Printer::debugEndStop()) {
                 Printer::reportFlagSet(PRINTER_REPORT_FLAG_ENDSTOPS);
             }

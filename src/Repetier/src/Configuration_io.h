@@ -140,13 +140,14 @@ IO_INPUT_INVERTED(ControllerNext, UI_NEXT_PIN)
 // Define our endstops solutions
 // You need to define all min and max endstops for all
 // axes except E even if you have none!
-
-ENDSTOP_SWITCH(endstopXMin, IOEndstopXMin)
+/**
+ENDSTOP_SWITCH_HW(endstopXMin, IOEndstopXMin, X_AXIS, -1)
 ENDSTOP_NONE(endstopXMax)
-ENDSTOP_SWITCH(endstopYMin, IOEndstopYMin)
+ENDSTOP_SWITCH_HW(endstopYMin, IOEndstopYMin, Y_AXIS, -1)
 ENDSTOP_NONE(endstopYMax)
-ENDSTOP_SWITCH(endstopZMin, IOEndstopZMin)
+ENDSTOP_SWITCH_HW(endstopZMin, IOEndstopZMin, Z_AXIS, -1)
 ENDSTOP_NONE(endstopZMax)
+**/
 
 // Define fans
 
@@ -203,6 +204,13 @@ IO_PWM_SOFTWARE(PWMBed1, IOBed1, 0)
 #endif
 // IO_OUTPUT(IOCooler1, FAN2_PIN)
 // IO_PWM_SOFTWARE(PWMCoolerExt1, FAN2_PIN, 0)
+
+ENDSTOP_SWITCH(endstopXMin, IOEndstopXMin)
+ENDSTOP_NONE(endstopXMax)
+ENDSTOP_SWITCH(endstopYMin, IOEndstopYMin)
+ENDSTOP_NONE(endstopYMax)
+ENDSTOP_SWITCH(endstopZMin, IOEndstopZMin)
+ENDSTOP_NONE(endstopZMax)
 
 // Define all stepper motors used
 STEPPER_SIMPLE(XMotor, IOX1Step, IOX1Dir, IOX1Enable, endstopXMin, endstopNone)

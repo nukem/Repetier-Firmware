@@ -17,6 +17,8 @@
 */
 
 class EndstopDriver {
+    uint8_t historyFlag;
+
 public:
     // Called by stepper driver before each step to update state
     virtual bool update() = 0;
@@ -35,6 +37,16 @@ public:
     virtual void setAttached(bool attach) { }
     virtual bool isAttached() { return true; } // SW Endstops always "attached".
     virtual ~EndstopDriver() { }
+    void resetHistory() { historyFlag = 0; }
+    bool historyWasTriggered() {
+        update();
+        return historyFlag & 1;
+    }
+    bool historyWasUntriggered() {
+        update();
+        return historyFlag & 2;
+    }
+    void historyUpdate(bool val) { historyFlag |= (val ? 1 : 2); }
 };
 
 class EndstopNoneDriver : public EndstopDriver {
@@ -61,7 +73,7 @@ class EndstopSwitchDriver : public EndstopDriver {
 
 public:
     EndstopSwitchDriver()
-        : state(false)
+        : state(inp::get())
         , parent(nullptr) { }
     virtual bool update() final;
     inline virtual bool triggered() final {
@@ -110,7 +122,7 @@ class EndstopSwitchDebounceDriver : public EndstopDriver {
 
 public:
     EndstopSwitchDebounceDriver()
-        : state(0) { }
+        : state(inp::get()) { }
     inline virtual bool update() final;
     inline virtual bool triggered() final {
         return state == level;
