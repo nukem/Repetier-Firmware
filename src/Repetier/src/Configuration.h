@@ -38,8 +38,8 @@
 // debug tools
 #define LIGHT_ON HAL::digitalWrite(UI_BACKLIGHT_PIN, 1);
 #define LIGHT_OFF HAL::digitalWrite(UI_BACKLIGHT_PIN, 0);
-#define CASE_ON HAL::digitalWrite(CASE_LIGHT_PIN, 1);
-#define CASE_OFF HAL::digitalWrite(CASE_LIGHT_PIN, 0);
+#define CASE_ON HAL::digitalWrite(CASE_LIGHT_PINS, 1);
+#define CASE_OFF HAL::digitalWrite(CASE_LIGHT_PINS, 0);
 
 
 #define NO_WAIT_MESSAGES 1
